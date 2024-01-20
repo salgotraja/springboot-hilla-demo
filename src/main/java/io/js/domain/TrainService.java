@@ -2,6 +2,7 @@ package io.js.domain;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import dev.hilla.BrowserCallable;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import java.util.stream.IntStream;
 
 @BrowserCallable
 @AnonymousAllowed
+@Service
 public class TrainService {
     private final Map<UUID, Train> trains;
 
@@ -28,13 +30,22 @@ public class TrainService {
 
 
     public Train updateTrain(Train train) {
-        if (trains.get(train.id()) == null) {
+        UUID id = train.id();
+
+        boolean trainExists = trains.values().stream()
+                .anyMatch(tr -> tr.id().equals(id));
+
+        System.out.println("Train exists: " + trainExists);
+
+        if (!trainExists) {
             throw new IllegalArgumentException("Train with ID = [" + train.id() + "] not exists");
         }
+
         var updatedTrain = Train.withId(train.id(), train);
         trains.put(train.id(), updatedTrain);
         return updatedTrain;
     }
+
 
     public Train getTrain(UUID id) {
         return this.trains.get(id);
